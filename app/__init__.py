@@ -91,3 +91,5 @@ def create_app():
     api.add_resource(AdminLogin, "/admin/auth/login", endpoint="admin_login")
 
     return app
+
+# do I need to compy migrations
