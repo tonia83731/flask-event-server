@@ -1,0 +1,42 @@
+# 創建一個虛擬環境
+python -m venv .env
+
+# 激活虛擬環境 (windows)
+.env/Scripts/Activate.ps1
+#退出虛擬環境
+deactivate
+
+# 查看虛擬環境中套件
+python -m pip freeze
+
+# 設定環境
+$env:FLASK_APP = "app:create_app"
+$env:FLASK_ENV = "development"
+# 查詢環境設定
+echo $env:FLASK_APP
+
+# 初始或資料庫
+flask db init
+
+#資料庫更新
+flask db migrate -m "initialized project"
+flask db upgrade
+
+flask db downgrade
+
+# flask shell 測試
+flask src import db, create_app
+app = create_app()
+--- 引入SQL表格 ---
+from src.model.users_schema import User
+
+# flask 單元測試
+python -m unittest discover
+
+# http://medium.com/@waynewu_25577/docker-flask-mysql-%E5%9F%BA%E6%9C%AC%E4%B8%B2%E6%8E%A5%E6%95%99%E5%AD%B8-77eff0871954
+
+# 新增種子資料
+# python -m app.seeds.run_seeds 
+
+# Tutorial
+https://www.youtube.com/watch?v=z3YMz-Gocmw
