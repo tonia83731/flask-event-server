@@ -1,8 +1,8 @@
 class BookingStatus():
-    BOOKING_PENDING = 0
-    BOOKING_CONFIRMED = 1
-    BOOKING_COMPLETED = 2
-    BOOKING_CANCELED = 3
+    # BOOKING_PENDING = 0
+    BOOKING_CONFIRMED = 0
+    BOOKING_COMPLETED = 1
+    BOOKING_CANCELED = 2
 
 
 class EventLocation():
@@ -10,7 +10,9 @@ class EventLocation():
     EVENT_ONLINE = 1
 
 class EventStatus():
-    EVENT_AVAILABLE = 0
-    EVENT_FULL = 1
-    EVENT_COMPLETED = 2
-    EVENT_CANCELED = 3
+    EVENT_PENDING=0
+    EVENT_AVAILABLE = 1
+    EVENT_FULL = 2
+    EVENT_COMPLETED = 3
+    EVENT_CANCELED = 4
+    EVENT_APPLY_END = 5

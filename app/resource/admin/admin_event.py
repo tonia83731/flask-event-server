@@ -1,10 +1,11 @@
 from flask import request
-from datetime import date
+from datetime import date, datetime
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from app.model.events_schema import EventSchema
+from app.model.bookings_schema import BookingSchema
 from app.lib.auth_handling import admin_authentication
-from app.lib.code_handling import EventStatus, EventLocation
+from app.lib.code_handling import EventStatus, EventLocation, BookingStatus
 from app import db
 
 from marshmallow import Schema, fields, post_load, validate, ValidationError,EXCLUDE
@@ -62,7 +63,6 @@ class AdminEvents(Resource):
             }, 400
         category_id = request.args.get('category_id', type=int)
         query = db.session.query(EventSchema)
-        # events = db.session.query(EventSchema).filter(EventSchema.admin_id == admin_id).all()
         
         if category_id is not None:
             query = query.filter(EventSchema.admin_id == admin_id, EventSchema.category_id == category_id)
@@ -70,17 +70,11 @@ class AdminEvents(Resource):
             query = query.filter(EventSchema.admin_id == admin_id)
         
         events = query.all()
-        events = [e.to_dict(include_admin=False, include_category=True) for e in events]
+        events = [e.to_dict(include_admin=False) for e in events]
         
         
         return {
-            "data": [
-            {
-                **e,
-                "category": e["category"]["name"] if "category" in e else None,
-            }
-            for e in events
-        ]
+            "data": events
         }, 200
 
     @jwt_required()
@@ -118,13 +112,10 @@ class AdminEvent(Resource):
                 "message": "Event not found"
             }, 404
         
-        event = event.to_dict(include_admin=False, include_category=True)
-        data = {
-            **event,
-            "category": event["category"]["name"] if "category" in event else None,
-        }
+        event = event.to_dict(include_admin=False)
+        
         return {
-            "data": data
+            "data": event
         }, 200
     
     @jwt_required()
@@ -198,17 +189,26 @@ class AdminEventCanceled(Resource):
             return {
                 "message": "Event not found"
             }, 404
+        
+        if event.status != EventStatus.EVENT_AVAILABLE:
+            return {
+                "message": "Canceled not available"
+            }, 400
         event.status = EventStatus.EVENT_CANCELED
+
+        # 需一起取消 Booking.status 跟 Qrcode
+        bookings = db.session.query(BookingSchema).filter(BookingSchema.event_id == event_id).all()
+        for booking in bookings:
+            booking.status = BookingStatus.BOOKING_CANCELED
+            if booking.qrcode:
+                booking.qrcode_id = None
+                db.session.delete(booking.qrcode)
+
         db.session.commit()
-        # 需一起取消 Booking.status 跟 Qrcode.is_valid
         """ 此處更新 """
         return {
             "data": event.to_dict()
         }, 200
-
-# 根據時間自動更新EVENT.STATUS
-def update_event_status():    
-    pass
 
 class AdminEventBookings(Resource):
     @jwt_required()
@@ -220,5 +220,26 @@ class AdminEventBookings(Resource):
         event = db.session.query(EventSchema).filter(EventSchema.id == event_id).first()
 
         return {
-            "data": [b.to_dict(include_user=True, include_event=False) for b in event.bookings]
+            "data": event.to_dict(include_admin=True, include_booking=True)
         }, 200
+    
+# 根據時間自動更新EVENT.STATUS
+def update_event_status():    
+    curr = datetime.now()
+    curr_timestamp = int(curr.timestamp())
+
+    events = db.session.query(EventSchema).all()
+
+    for event in events:
+        if event.status == EventStatus.EVENT_CANCELED:
+            continue
+        if event.event_end_date < curr_timestamp:
+            event.status = EventStatus.EVENT_COMPLETED
+
+        elif event.apply_end_date and event.apply_end_date < curr_timestamp:
+            event.status = EventStatus.EVENT_APPLY_END
+
+        elif event.apply_start_date <= curr_timestamp <= (event.apply_end_date or curr_timestamp):
+            event.status = EventStatus.EVENT_AVAILABLE
+
+    db.session.commit()

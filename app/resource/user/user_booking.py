@@ -9,12 +9,13 @@ from app.lib.code_handling import BookingStatus, EventStatus
 from app import db
 
 
-from marshmallow import Schema, fields, validate
-
-class BookingValidate(Schema):
-    name = fields.String(required=True, validate=validate.Length(min=4, max=100))
-    email = fields.Email(required=True) 
-    phone = fields.String()
+# from marshmallow import Schema, fields, validate
+from qrcode import make
+import io
+# class BookingValidate(Schema):
+#     name = fields.String(required=True, validate=validate.Length(min=4, max=100))
+#     email = fields.Email(required=True) 
+#     phone = fields.String()
 
 
 class EventBooking(Resource):    
@@ -31,32 +32,34 @@ class EventBooking(Resource):
                 "message": "Event not found"
             }, 404
 
-        if event.status == EventStatus.EVENT_FULL:
+        if event.status != EventStatus.EVENT_AVAILABLE:
             return {
-                "message": "Event is fully booked"
+                "message": "Booking is not available"
             }, 400
         
-        booking = db.session.query(BookingSchema).filter(BookingSchema.user_id == user_id, BookingSchema.event_id == event_id).first()
+        existing_booking = db.session.query(BookingSchema).filter(BookingSchema.user_id == user_id, BookingSchema.event_id == event_id).first()
 
-        if booking:
+        if existing_booking:
             return {
                 "message": "User already booked"
             }, 400
         
-        input = BookingValidate()
-        errors = input.validate(request.json)
-        if errors:
-            return {
-                "message": errors
-            }, 400
+        # step1: create booking
+        booking = BookingSchema(user_id=user_id, event_id=event_id)
+        booking.created_flush()
+        
+        # step2: generate QR code & save
+        """ 前端轉址url """
+        ticket_url = f"http://127.0.0.1:5000/ticket?booking_id={booking.id}"
+        qr_code = make(ticket_url)
+        qr_bytes = io.BytesIO()
+        qr_code.save(qr_bytes, format='PNG')
+        qr_data = qr_bytes.getvalue()
 
-        data = input.load(request.json)
+        qrcode = QRcodeSchema(img=qr_data, name=f"booking_{user_id}.png", mimetype="image/png", is_valid=True)
+        qrcode.created()
 
-        data['user_id'] = user_id
-        data['event_id'] = event_id
-
-        booking = BookingSchema(**data)
-        booking.created()
+        booking.qrcode_id = qrcode.id
 
         event.current_attendees += 1
         if event.current_attendees == event.max_attendees:
@@ -77,26 +80,11 @@ class ClientBookings(Resource):
                 "message": 'Permission denied'
             }, 400
         bookings = db.session.query(BookingSchema).filter(BookingSchema.user_id == user_id).all()
-        bookings = [b.to_dict(include_user=False, include_event=True) for b in bookings]
-        data = [
-            {
-                **b,
-                "event_title": b['event']['title'] if 'event' in b else None,
-                "event_date": b['event']['event_date'] if 'event' in b else None,
-                "event_start_time": b['event']['event_start_time'] if 'event' in b else None,
-                "event_end_time": b['event']['event_end_time'] if 'event' in b else None,
-                "event_location": b['event']['location'] if 'event' in b else None,
-                "event_address": b['event']['address'] if 'event' in b else None,
-                "event_url": b['event']['url'] if 'event' in b else None,
-            }
-            for b in bookings
-        ]
-
-        for entry in data:
-            entry.pop('event', None)
+        bookings = [b.to_dict(include_event=True) for b in bookings]
 
         return {
-            "data": data
+            "success": True,
+            "data": bookings
         }, 200
 
 
@@ -113,53 +101,41 @@ class ClientBooking(Resource):
                 "message": "Booking not found"
             }, 404
         
-        booking = booking.to_dict(include_user=False, include_event=True)
-        data = {
-                **booking,
-                "event_title": booking['event']['title'] if 'event' in booking else None,
-                "event_date": booking['event']['event_date'] if 'event' in booking else None,
-                "event_start_time": booking['event']['event_start_time'] if 'event' in booking else None,
-                "event_end_time": booking['event']['event_end_time'] if 'event' in booking else None,
-                "event_location": booking['event']['location'] if 'event' in booking else None,
-                "event_address": booking['event']['address'] if 'event' in booking else None,
-                "event_url": booking['event']['url'] if 'event' in booking else None,
-            }
-        
-        data.pop('event', None)
+        booking = booking.to_dict(include_event=True)
         
         return {
-            "data": data
+            "data": booking
         }, 200
     
-class ClientBookingUpdated(Resource):
-    @jwt_required()
-    def put(self, user_id, booking_id):
-        if not user_authentication(user_id):
-            return {
-                "message": 'Permission denied'
-            }, 400
-        booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id, BookingSchema.user_id == user_id).first()
-        if not booking:
-            return {
-                "message": "Booking not found"
-            }, 404
+# class ClientBookingUpdated(Resource):
+#     @jwt_required()
+#     def put(self, user_id, booking_id):
+#         if not user_authentication(user_id):
+#             return {
+#                 "message": 'Permission denied'
+#             }, 400
+#         booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id, BookingSchema.user_id == user_id).first()
+#         if not booking:
+#             return {
+#                 "message": "Booking not found"
+#             }, 404
         
-        input = BookingValidate(partial=True)
-        errors = input.validate(request.json)
-        if errors:
-            return {
-                "message": errors
-            }, 400
+#         input = BookingValidate(partial=True)
+#         errors = input.validate(request.json)
+#         if errors:
+#             return {
+#                 "message": errors
+#             }, 400
         
-        data = input.load(request.json)
-        for field, value in data.items():
-            setattr(booking, field, value)
+#         data = input.load(request.json)
+#         for field, value in data.items():
+#             setattr(booking, field, value)
 
-        db.session.commit()
+#         db.session.commit()
 
-        return {
-            "data": booking.to_dict()
-        }, 200
+#         return {
+#             "data": booking.to_dict()
+#         }, 200
     
 
 class ClientBookingCanceled(Resource):
@@ -181,8 +157,9 @@ class ClientBookingCanceled(Resource):
         """ 更新QRcode 狀態 """
         if booking.qrcode_id:
             qrcode = db.session.query(QRcodeSchema).filter(QRcodeSchema.id == booking.qrcode_id).first()
-            if qrcode.is_valid and not qrcode.is_applied:
-                qrcode.is_valid = False
+            if qrcode:
+                qrcode.deleted()
+                booking.qrcode_id = None
 
         event = db.session.query(EventSchema).filter(EventSchema.id == booking.event_id).first()
         if not event:
