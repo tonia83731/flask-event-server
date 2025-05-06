@@ -22,15 +22,12 @@ from app.resource.admin.admin_info import Admin
 from app.resource.admin.admin_img import Images
 from app.resource.admin.admin_event import AdminEvents, AdminEvent, AdminEventBookings, AdminEventCanceled, update_event_status
 from app.resource.admin.admin_category import AdminCategories
-# from app.resource.admin.admin_booking import AdminBookingUpdated
 from app.resource.user.user_auth import UserRegister, UserLogin
 from app.resource.user.user_info import User
 from app.resource.category import Category
 from app.resource.events import Events, Event
 from app.resource.user.user_booking import EventBooking, ClientBooking, ClientBookings, ClientBookingCanceled
 from app.resource.qrcode import QRcode
-# from app.resource.ticket import Ticket
-# from app.resource.admin.admin_ticket import TicketConfirmed
 from app.resource.admin.admin_ticket import Ticket, TicketConfirmed
 from app.resource.image import Image
 
@@ -67,20 +64,17 @@ def create_app():
     api.add_resource(EventBooking, "/bookings/<int:user_id>/<int:event_id>/created")
     api.add_resource(ClientBookings, "/bookings/<int:user_id>")
     api.add_resource(ClientBooking, "/bookings/<int:user_id>/<int:booking_id>")
-    # api.add_resource(ClientBookingUpdated, "/bookings/<int:user_id>/<int:booking_id>/updated")
     api.add_resource(ClientBookingCanceled, "/bookings/<int:user_id>/<int:booking_id>/canceled")
-    # api.add_resource(AdminBookingUpdated, "/admin/bookings/<int:admin_id>/<int:booking_id>/confirmed")
     
     # QRCODE
     api.add_resource(QRcode, "/qrcode/<int:qrcode_id>")
     
     # TICKET
-    api.add_resource(Ticket, "/ticket/<int:user_id>/<int:booking_id>")
-    api.add_resource(TicketConfirmed, "/ticket/<int:user_id>/<int:booking_id>/<int:qrcode_id>/confirmed")
+    api.add_resource(Ticket, "/ticket/<int:booking_id>")
+    api.add_resource(TicketConfirmed, "/ticke/<int:booking_id>/confirmed")
 
     # CATEGORY
     api.add_resource(Category, '/categories')
-    # api.add_resource(AdminCategory, '/admin/categories/<int:admin_id>/<int:category_id>')
     api.add_resource(AdminCategories, '/admin/categories/<int:admin_id>')
     
     # IMAGE

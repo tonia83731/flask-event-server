@@ -1,4 +1,3 @@
-from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from app.model.events_schema import EventSchema
@@ -7,16 +6,8 @@ from app.model.qr_schema import QRcodeSchema
 from app.lib.auth_handling import user_authentication
 from app.lib.code_handling import BookingStatus, EventStatus
 from app import db
-
-
-# from marshmallow import Schema, fields, validate
 from qrcode import make
 import io
-# class BookingValidate(Schema):
-#     name = fields.String(required=True, validate=validate.Length(min=4, max=100))
-#     email = fields.Email(required=True) 
-#     phone = fields.String()
-
 
 class EventBooking(Resource):    
     @jwt_required()
@@ -106,36 +97,6 @@ class ClientBooking(Resource):
         return {
             "data": booking
         }, 200
-    
-# class ClientBookingUpdated(Resource):
-#     @jwt_required()
-#     def put(self, user_id, booking_id):
-#         if not user_authentication(user_id):
-#             return {
-#                 "message": 'Permission denied'
-#             }, 400
-#         booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id, BookingSchema.user_id == user_id).first()
-#         if not booking:
-#             return {
-#                 "message": "Booking not found"
-#             }, 404
-        
-#         input = BookingValidate(partial=True)
-#         errors = input.validate(request.json)
-#         if errors:
-#             return {
-#                 "message": errors
-#             }, 400
-        
-#         data = input.load(request.json)
-#         for field, value in data.items():
-#             setattr(booking, field, value)
-
-#         db.session.commit()
-
-#         return {
-#             "data": booking.to_dict()
-#         }, 200
     
 
 class ClientBookingCanceled(Resource):

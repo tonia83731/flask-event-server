@@ -34,22 +34,3 @@ class Images(Resource):
         return {
             "data": img.id
         }, 200
-    
-# def post(self):
-    #     # 前端input name="pic"
-    #     pic = request.files['pic']
-
-    #     if not pic:
-    #         return {
-    #             "message": "No image uploaded"
-    #         }, 400
-
-    #     filename = secure_filename(pic.filename)
-    #     mimetype = pic.mimetype
-
-    #     img = ImgSchema(img=pic.read(), name=filename, mimetype=mimetype)
-    #     img.created()
-
-    #     return {
-    #         "data": img.id
-    #     }, 200
