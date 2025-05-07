@@ -15,7 +15,7 @@ class BookingSchema(Base):
     created_at = db.Column(db.DateTime, default=func.now())
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now())
 
-    user = relationship("UserSchema", back_populates="bookings")
+    user = relationship("UserSchema", back_populates="bookings", lazy="joined")
     event = relationship("EventSchema", back_populates="bookings")
     qrcode = relationship("QRcodeSchema", back_populates="bookings")
 

@@ -3,7 +3,6 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from app.model.users_schema import UserSchema
 from app.lib.auth_handling import user_authentication
-from app.lib.password_handling import encoded_password
 from app import db
 from marshmallow import Schema, fields, validate
 

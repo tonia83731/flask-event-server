@@ -29,7 +29,7 @@ class UserRegister(Resource):
         is_existed = db.session.query(UserSchema).filter(UserSchema.email == data['email']).first()
         if is_existed:
             return {
-                'message': 'User already existed'
+                'message': 'Email already existed'
             }, 400
         
         hash = encoded_password(data['password'])
@@ -47,15 +47,14 @@ class UserRegister(Resource):
             html=f"""
                 <html>
                     <body>
-                        <p>Hi {user.name},</p>
-                        <p>Please click the link below to activate your account:</p>
-                        <p><a href="{activation_link}">Activate Account</a></p>
-                        <p>If you did not sign up, please ignore this email.</p>
+                        <p>{user.name} 您好，</p>
+                        <p>請點擊以下連結以啟用您的帳號：</p>
+                        <p><a href="{activation_link}">啟用帳號</a></p>
+                        <p>如果您並未註冊此帳號，請忽略此封郵件。</p>
                     </body>
                 </html>
             """
         )
-
         mail.send(msg)
 
         res = {
@@ -70,7 +69,6 @@ class UserRegister(Resource):
             'data': res
         }, 201
 
-
 class UserRegisterActivate(Resource):
     def get(self, token):
 
@@ -83,8 +81,6 @@ class UserRegisterActivate(Resource):
             }, 200
 
         user = db.session.query(UserSchema).filter(UserSchema.id == user_id, UserSchema.email == email).first()
-        
-        print(user_id, email, user)
         
         if not user:
             return {
@@ -105,7 +101,6 @@ class UserRegisterActivate(Resource):
             "success": True,
             "message": "Account successfully activated"
         }, 200
-
 
 class UserLogin(Resource):
     def post(self):
@@ -173,9 +168,9 @@ class ForgotPassword(Resource):
             html=f"""
                 <html>
                     <body>
-                        <p>Hi {user.name},</p>
-                        <p>"Click the following link to reset your password:</p>
-                        <p><a href="{reset_url}">Reset Email</a></p>
+                        <p>{user.name} 您好，</p>
+                        <p>請點擊以下連結以重設您的密碼：</p>
+                        <p><a href="{reset_url}">重設密碼</a></p>
                     </body>
                 </html>
             """

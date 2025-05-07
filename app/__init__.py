@@ -17,7 +17,7 @@ from app.model.bookings_schema import BookingSchema
 from app.model.qr_schema import QRcodeSchema
 
 from app.resource.hello import Hello
-from app.resource.admin.admin_auth import AdminLogin, AdminRegister
+from app.resource.admin.admin_auth import AdminLogin, AdminRegister, AdminRegisterActivate
 from app.resource.admin.admin_info import Admin
 from app.resource.admin.admin_img import Images
 from app.resource.admin.admin_event import AdminEvents, AdminEvent, AdminEventBookings, AdminEventCanceled, update_event_status
@@ -92,6 +92,7 @@ def create_app():
     api.add_resource(AdminLogin, "/admin/auth/login", endpoint="admin_login")
     # ACTIVATION
     api.add_resource(UserRegisterActivate, "/activate/<token>")
+    api.add_resource(AdminRegisterActivate, "/admin/activate/<token>")
     # FORGOT PASSWORD
     api.add_resource(ForgotPassword, "/forgot-password")
     api.add_resource(ResetPassword, "/reset-password/<token>")

@@ -18,6 +18,7 @@ class UserSchema(Base):
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     # 是否為管理員
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+    is_admin_main = db.Column(db.Boolean, nullable=False, default=False)
 
     created_at = db.Column(db.DateTime, default=func.now())  # Set automatically when created
     updated_at = db.Column(db.DateTime, default=func.now(), onupdate=func.now())  # Auto-update
