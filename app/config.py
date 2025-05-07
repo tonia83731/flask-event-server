@@ -4,10 +4,6 @@ from dotenv import load_dotenv
 
 env = os.getenv('FLASK_ENV', 'development')
 
-# if env == 'development':
-#     load_dotenv(".env/.env.dev")
-# elif env == 'production':
-#     load_dotenv(".env/.env.prod")
 if env == 'development':
     load_dotenv(".env.dev")
 elif env == 'production':
@@ -20,6 +16,9 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
     JWT_BLACKLIST_ENABLED=True
     JWT_TOKEN_LOCATION='headers'
+    MAIL_SERVER='smtp.gmail.com'
+    MAIL_PORT=587
+    MAIL_USE_TLS=True
 
 class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
@@ -29,11 +28,23 @@ class TestingConfig(Config):
 class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI')
     JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY')
+
+    REGISTER_SCRET_KEY=os.getenv('REGISTER_SCRET_KEY')
+
+    MAIL_USERNAME=os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER')
     DEBUG=True
 
 class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI')
     JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY')
+
+    REGISTER_SCRET_KEY=os.getenv('REGISTER_SCRET_KEY')
+
+    MAIL_USERNAME=os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER=os.getenv('MAIL_DEFAULT_SENDER')
 
 app_config = {
     'testing': TestingConfig,

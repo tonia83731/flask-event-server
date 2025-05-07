@@ -22,7 +22,7 @@ from app.resource.admin.admin_info import Admin
 from app.resource.admin.admin_img import Images
 from app.resource.admin.admin_event import AdminEvents, AdminEvent, AdminEventBookings, AdminEventCanceled, update_event_status
 from app.resource.admin.admin_category import AdminCategories
-from app.resource.user.user_auth import UserRegister, UserLogin
+from app.resource.user.user_auth import UserRegister, UserRegisterActivate, UserLogin, ForgotPassword, ResetPassword
 from app.resource.user.user_info import User
 from app.resource.category import Category
 from app.resource.events import Events, Event
@@ -30,6 +30,7 @@ from app.resource.user.user_booking import EventBooking, ClientBooking, ClientBo
 from app.resource.qrcode import QRcode
 from app.resource.admin.admin_ticket import Ticket, TicketConfirmed
 from app.resource.image import Image
+from app.extensions import mail
 
 from app.config import app_config
 
@@ -45,9 +46,9 @@ def create_app():
     db.init_app(app)
     Migrate(app, db)
     JWTManager(app)
+    mail.init_app(app)
 
     scheduler = BackgroundScheduler()
-
     scheduler.add_job(func=update_event_status, trigger='interval', minutes=60)
     scheduler.start()
 
@@ -89,6 +90,11 @@ def create_app():
     api.add_resource(UserLogin, "/auth/login", endpoint="user_login")
     api.add_resource(AdminRegister, "/admin/auth/register", endpoint="admin_register")
     api.add_resource(AdminLogin, "/admin/auth/login", endpoint="admin_login")
+    # ACTIVATION
+    api.add_resource(UserRegisterActivate, "/activate/<token>")
+    # FORGOT PASSWORD
+    api.add_resource(ForgotPassword, "/forgot-password")
+    api.add_resource(ResetPassword, "/reset-password/<token>")
 
     return app
 

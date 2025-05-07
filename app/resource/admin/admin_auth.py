@@ -1,11 +1,13 @@
+import bcrypt
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token
+# from flask_mail import Message
+from app import db
+# from app.extensions import mail
 from app.lib.validation.auth import LoginValidate
 from app.lib.password_handling import encoded_password
 from app.model.users_schema import UserSchema
-from app import db
-import bcrypt
 
 from marshmallow import Schema, fields, validate
 class AdminRegisterValidate(Schema):

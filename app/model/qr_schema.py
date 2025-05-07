@@ -10,4 +10,4 @@ class QRcodeSchema(Base):
     mimetype = db.Column(db.Text, nullable=False)
     is_applied = db.Column(db.Boolean, nullable=False, default=False)
 
-    bookings = relationship("BookingSchema", back_populates="qrcode", cascade="all, delete-orphan")
+    bookings = relationship("BookingSchema", back_populates="qrcode", cascade="all, delete-orphan", single_parent=True)
