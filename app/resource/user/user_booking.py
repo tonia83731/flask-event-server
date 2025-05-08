@@ -164,7 +164,6 @@ class ClientBookingCanceled(Resource):
                 qrcode.deleted()
                 booking.qrcode_id = None
 
-        # db.session.refresh(booking)
         db.session.commit()
 
         return {

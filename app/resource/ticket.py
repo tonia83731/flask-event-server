@@ -1,12 +1,13 @@
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app import db
 from app.model.bookings_schema import BookingSchema
 from app.model.qr_schema import QRcodeSchema
-from app.lib.code_handling import BookingStatus
-from app.lib.code_handling import EventStatus
-from app import db
+from app.lib.code_handling import BookingStatus, EventStatus
+from app.lib.auth_handling import JWTAuth
 
 class Ticket(Resource):
+    @jwt_required()
     def get(self, booking_id):
         booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id).first()
 
@@ -16,18 +17,28 @@ class Ticket(Resource):
                 "message": "Booking not found"
             }, 200
         
+        
+        auth = JWTAuth()
+        user_id = auth.identity
+        # admin/user both can access
+        if booking.user_id != user_id or (not booking.event and booking.event.admin_id != user_id):
+            return {
+                "is_valid": False,
+                "message": "Permission denied"
+            }
+        
         if booking.status != BookingStatus.BOOKING_CONFIRMED:
             return {
                 "is_valid": False,
                 "message": "Booking not available"
             }, 200
 
-        event = booking.events
-        if event.status in [EventStatus.EVENT_COMPLETED, EventStatus.EVENT_CANCELED]:
+        if booking.event.status in [EventStatus.EVENT_COMPLETED, EventStatus.EVENT_CANCELED]:
             return {
                 "is_valid": False,
                 "message": "The event has been canceled or has already ended."
             }, 200
+        
         qrcode = booking.qrcode
 
         if not qrcode:
@@ -44,7 +55,7 @@ class Ticket(Resource):
         return {
             "is_valid": True,
             "message": "Valid User",
-            "redirect_url": f"?booking_id={booking_id}"
+            # "redirect_url": f"?booking_id={booking_id}"
         }, 200
 
 class TicketConfirmed(Resource):
@@ -60,12 +71,12 @@ class TicketConfirmed(Resource):
                 "message": "Booking not found"
             }, 404
 
-        if booking.events.admin_id != identity_id:
+        if booking.event.admin_id != identity_id:
             return {
                 "message": "Permission denined"
             }, 403
 
-        booking.status = BookingStatus.BOOKING_COMPLETED
+        booking.status = BookingStatus.USER_ATTENDED
         
         if booking.qrcode:
             booking.qrcode.is_applied = True

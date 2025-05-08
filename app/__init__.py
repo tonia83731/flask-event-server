@@ -28,7 +28,7 @@ from app.resource.category import Categories, AdminCategories
 from app.resource.events import Events, Event
 from app.resource.admin.admin_event import AdminEvents, AdminEvent, AdminEventBookings, AdminEventCanceled
 from app.resource.user.user_booking import EventBooking, ClientBooking, ClientBookings, ClientBookingCanceled
-# from app.resource.admin.admin_ticket import Ticket, TicketConfirmed
+from app.resource.ticket import Ticket, TicketConfirmed
 
 from app.lib.event_status_handling import update_event_status
 
@@ -69,8 +69,8 @@ def create_app():
     api.add_resource(ClientBookingCanceled, "/bookings/<int:user_id>/<int:booking_id>/canceled")
     
     # TICKET
-    # api.add_resource(Ticket, "/ticket/<int:booking_id>")
-    # api.add_resource(TicketConfirmed, "/ticket/<int:booking_id>/confirmed")
+    api.add_resource(Ticket, "/ticket/<int:booking_id>")
+    api.add_resource(TicketConfirmed, "/ticket/<int:booking_id>/confirmed")
 
     # CATEGORY
     api.add_resource(Categories, '/categories')

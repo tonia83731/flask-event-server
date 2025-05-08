@@ -1,7 +1,7 @@
 class BookingStatus():
     # BOOKING_PENDING = 0
     BOOKING_CONFIRMED = 0
-    BOOKING_COMPLETED = 1
+    USER_ATTENDED = 1
     BOOKING_CANCELED = 2
 
 
