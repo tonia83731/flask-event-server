@@ -27,7 +27,7 @@ from app.resource.admin.admin_info import AdminInfo
 from app.resource.category import Categories, AdminCategories
 from app.resource.events import Events, Event
 from app.resource.admin.admin_event import AdminEvents, AdminEvent, AdminEventBookings, AdminEventCanceled
-# from app.resource.user.user_booking import EventBooking, ClientBooking, ClientBookings, ClientBookingCanceled
+from app.resource.user.user_booking import EventBooking, ClientBooking, ClientBookings, ClientBookingCanceled
 # from app.resource.admin.admin_ticket import Ticket, TicketConfirmed
 
 from app.lib.event_status_handling import update_event_status
@@ -63,10 +63,10 @@ def create_app():
     api.add_resource(AdminEventCanceled, '/admin/events/<int:admin_id>/<int:event_id>/canceled')
     
     # BOOKING
-    # api.add_resource(EventBooking, "/bookings/<int:user_id>/<int:event_id>/created")
-    # api.add_resource(ClientBookings, "/bookings/<int:user_id>")
-    # api.add_resource(ClientBooking, "/bookings/<int:user_id>/<int:booking_id>")
-    # api.add_resource(ClientBookingCanceled, "/bookings/<int:user_id>/<int:booking_id>/canceled")
+    api.add_resource(EventBooking, "/bookings/<int:user_id>/<int:event_id>/created")
+    api.add_resource(ClientBookings, "/bookings/<int:user_id>")
+    api.add_resource(ClientBooking, "/bookings/<int:user_id>/<int:booking_id>")
+    api.add_resource(ClientBookingCanceled, "/bookings/<int:user_id>/<int:booking_id>/canceled")
     
     # TICKET
     # api.add_resource(Ticket, "/ticket/<int:booking_id>")

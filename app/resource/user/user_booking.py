@@ -10,15 +10,14 @@ from app.model.users_schema import UserSchema
 from app.model.events_schema import EventSchema
 from app.model.bookings_schema import BookingSchema
 from app.model.qr_schema import QRcodeSchema
-from app.lib.user_form_handling import user_authentication
 from app.lib.code_handling import BookingStatus, EventStatus
-
+from app.lib.auth_handling import JWTAuth
 class EventBooking(Resource):    
     @jwt_required()
     def post(self, user_id, event_id):
-        if not user_authentication(user_id):
+        if not JWTAuth.is_user(user_id):
             return {
-                "message": 'Permission denied'
+                "message": "Permission denied"
             }, 400
         
         event = db.session.query(EventSchema).filter(EventSchema.id == event_id).first()
@@ -97,9 +96,9 @@ class EventBooking(Resource):
 class ClientBookings(Resource):
     @jwt_required()
     def get(self, user_id):
-        if not user_authentication(user_id):
+        if not JWTAuth.is_user(user_id):
             return {
-                "message": 'Permission denied'
+                "message": "Permission denied"
             }, 400
         bookings = db.session.query(BookingSchema).filter(BookingSchema.user_id == user_id).all()
         bookings = [b.to_dict(include_event=True) for b in bookings]
@@ -113,9 +112,9 @@ class ClientBookings(Resource):
 class ClientBooking(Resource):
     @jwt_required()
     def get(self, user_id, booking_id):
-        if not user_authentication(user_id):
+        if not JWTAuth.is_user(user_id):
             return {
-                "message": 'Permission denied'
+                "message": "Permission denied"
             }, 400
         booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id).first()
         if not booking:
@@ -134,9 +133,9 @@ class ClientBookingCanceled(Resource):
     @jwt_required()
     def put(self, user_id, booking_id):
         """ 取消報名活動 """
-        if not user_authentication(user_id):
+        if not JWTAuth.is_user(user_id):
             return {
-                "message": 'Permission denied'
+                "message": "Permission denied"
             }, 400
         # booking = db.session.query(BookingSchema).filter(BookingSchema.id == booking_id).first()
         booking = db.session.query(BookingSchema).options(

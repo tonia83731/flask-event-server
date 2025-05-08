@@ -92,7 +92,6 @@ class UserLogin(Resource):
 
 
 # -----------------------------------------------------
-
 class ResetPassword(Resource):
     def post(self, token):
         try:

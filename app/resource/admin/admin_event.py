@@ -141,7 +141,7 @@ class AdminEventCanceled(Resource):
     @jwt_required()
     def put(self, admin_id, event_id):
         """ 取消活動 """
-        if not admin_authentication(admin_id):
+        if not JWTAuth.is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -174,7 +174,7 @@ class AdminEventCanceled(Resource):
 class AdminEventBookings(Resource):
     @jwt_required()
     def get(self, admin_id, event_id):
-        if not admin_authentication(admin_id):
+        if not JWTAuth.is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
