@@ -27,7 +27,7 @@ class TestingConfig(Config):
 
 class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI')
-    JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY')
+    SECRET_KEY=os.getenv('JWT_SECRET_KEY')
 
     REGISTER_SCRET_KEY=os.getenv('REGISTER_SCRET_KEY')
 
@@ -38,7 +38,7 @@ class DevConfig(Config):
 
 class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI=os.getenv('SQLALCHEMY_DATABASE_URI')
-    JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY')
+    SECRET_KEY=os.getenv('JWT_SECRET_KEY')
 
     REGISTER_SCRET_KEY=os.getenv('REGISTER_SCRET_KEY')
 

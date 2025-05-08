@@ -1,21 +1,18 @@
+import bcrypt
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-from app.model.users_schema import UserSchema
-from app.lib.auth_handling import user_authentication
+from marshmallow import ValidationError
 from app import db
-from marshmallow import Schema, fields, validate
+from app.model.users_schema import UserSchema
+from app.lib.auth_handling import JWTAuth
+from app.lib.user_form_handling import UpdatedUserInfoForm
+from app.lib.password_handling import encoded_password
 
-class ClientInfoValidate(Schema):
-    name = fields.String(required=True, validate=validate.Length(min=4, max=100))
-    email = fields.Email(required=True) 
-    phone = fields.String(required=True)
-    address = fields.String(required=False, allow_none=True)
-
-class User(Resource):
+class UserInfo(Resource):
     @jwt_required()
     def get(self, user_id):
-        if not user_authentication(user_id):
+        if not JWTAuth().is_user(user_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -33,10 +30,9 @@ class User(Resource):
     
     @jwt_required()
     def put(self, user_id):
-        if not user_authentication(user_id):
+        if not JWTAuth.is_user(user_id):
             return {
-                'success': False,
-                "message": "permission denied"
+                "message": "Permission denied"
             }, 400
         
         user = db.session.query(UserSchema).filter(UserSchema.id == user_id).first()
@@ -45,25 +41,48 @@ class User(Resource):
                 'success': False,
                 "message": "User not found"
             }, 404
-        input_data = ClientInfoValidate(partial=True)
-        errors = input_data.validate(request.json)
-        if errors:
+        
+        user_validation = UpdatedUserInfoForm()
+        form_input = request.get_json()
+
+        try:
+            form = user_validation.load(form_input)
+        except ValidationError as err:
             return {
-                'success': False,
-                "message": errors
+                "message": err.messages
             }, 400
         
-        data = input_data.load(request.json)
-        if 'email' in data:
-            is_existed = db.session.query(UserSchema).filter(UserSchema.email == data['email'], UserSchema.id != user_id).first()
+        # checked email
+        if 'email' in form:
+            is_existed = db.session.query(UserSchema).filter(UserSchema.email == form['email'], UserSchema.id != user_id).first()
             if is_existed:
                 return {
-                    'success': False,
                     "message": "Email already existed"
                 }, 400
             
-        for field, value in data.items():
-            setattr(user, field, value)
+        # checked password
+        if 'password' in form:
+            if 'original_password' not in form:
+                return {
+                    "message": "Original password is required"
+                }, 400
+            
+            # original_password checked
+            is_password_match = bcrypt.checkpw(form['password'].encode(), user.password.encode())
+            if not is_password_match:
+                return {
+                    'message': 'Original password incorrect'
+                }, 400
+            if form['original_password'] == form['password']:
+                return {
+                    "message": "The new password must be different from the original password"
+                }
+            
+            user.password = encoded_password(form['password'])
+            
+        for field, value in form.items():
+            if field not in ['original_password', 'password']:
+                setattr(user, field, value)
 
         db.session.commit()
 
@@ -72,7 +91,4 @@ class User(Resource):
             "data": user.to_dict()
         }, 200
     
-        
-        
-
         

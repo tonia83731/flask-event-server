@@ -1,8 +1,8 @@
-"""add tables
+"""initialized project
 
-Revision ID: 84cfaea00a5e
+Revision ID: 20600f5295f9
 Revises: 
-Create Date: 2025-04-28 16:57:00.451579
+Create Date: 2025-05-08 14:37:42.908095
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '84cfaea00a5e'
+revision = '20600f5295f9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,7 +21,6 @@ def upgrade():
     op.create_table('categories',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('code', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -38,7 +37,6 @@ def upgrade():
     sa.Column('img', sa.LargeBinary(), nullable=False),
     sa.Column('name', sa.Text(), nullable=False),
     sa.Column('mimetype', sa.Text(), nullable=False),
-    sa.Column('is_valid', sa.Boolean(), nullable=False),
     sa.Column('is_applied', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
@@ -49,7 +47,9 @@ def upgrade():
     sa.Column('password', sa.String(length=512), nullable=False),
     sa.Column('phone', sa.String(length=255), nullable=True),
     sa.Column('address', sa.String(length=255), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_admin', sa.Boolean(), nullable=False),
+    sa.Column('is_admin_main', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -62,37 +62,34 @@ def upgrade():
     sa.Column('title', sa.String(length=255), nullable=False),
     sa.Column('category_id', sa.Integer(), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('event_date', sa.Date(), nullable=False),
-    sa.Column('event_start_time', sa.Time(), nullable=False),
-    sa.Column('event_end_time', sa.Time(), nullable=False),
+    sa.Column('event_start_date', sa.Integer(), nullable=False),
+    sa.Column('event_end_date', sa.Integer(), nullable=False),
+    sa.Column('apply_start_date', sa.Integer(), nullable=False),
+    sa.Column('apply_end_date', sa.Integer(), nullable=True),
     sa.Column('location', sa.Integer(), nullable=False),
     sa.Column('address', sa.String(length=255), nullable=True),
     sa.Column('url', sa.String(length=255), nullable=True),
     sa.Column('img_id', sa.Integer(), nullable=True),
-    sa.Column('price', sa.Integer(), nullable=False),
     sa.Column('max_attendees', sa.Integer(), nullable=False),
-    sa.Column('current_attendees', sa.Integer(), nullable=False),
+    sa.Column('curr_attendees', sa.Integer(), nullable=False),
     sa.Column('status', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['admin_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
-    sa.ForeignKeyConstraint(['img_id'], ['image.id'], ),
+    sa.ForeignKeyConstraint(['img_id'], ['image.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('bookings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('event_id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=255), nullable=False),
-    sa.Column('email', sa.String(length=255), nullable=False),
-    sa.Column('phone', sa.String(length=255), nullable=True),
     sa.Column('status', sa.Integer(), nullable=False),
     sa.Column('qrcode_id', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ),
-    sa.ForeignKeyConstraint(['qrcode_id'], ['qrcode.id'], ),
+    sa.ForeignKeyConstraint(['event_id'], ['events.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['qrcode_id'], ['qrcode.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

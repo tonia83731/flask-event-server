@@ -9,7 +9,7 @@ class EventSchema(Base):
     # 只有UserSchema 內 is_active == True 和 is_admin == True
     admin_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(255), nullable=False)
-    category_id = db.Column(db.Integer, ForeignKey('categories.id'), nullable=False, default=9)
+    category_id = db.Column(db.Integer, ForeignKey('categories.id'), nullable=False, default=1)
     description = db.Column(db.Text)
     # use unix timestamp
     event_start_date = db.Column(db.Integer, nullable=False)
@@ -22,7 +22,7 @@ class EventSchema(Base):
     address = db.Column(db.String(255))
     url =  db.Column(db.String(255))
     # https://watson-john.medium.com/image-database-with-flask-d3015c935e2b
-    img_id = db.Column(db.Integer, ForeignKey('image.id', ondelete='CASCADE'), nullable=True)
+    img_id = db.Column(db.Integer, ForeignKey('image.id', ondelete='CASCADE'), nullable=True, default=1)
     max_attendees = db.Column(db.Integer, nullable=False, default=10)
     curr_attendees = db.Column(db.Integer, nullable=False, default=0)
     status = db.Column(db.Integer, nullable=False, default=0)

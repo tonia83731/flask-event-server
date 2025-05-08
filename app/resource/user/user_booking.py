@@ -10,7 +10,7 @@ from app.model.users_schema import UserSchema
 from app.model.events_schema import EventSchema
 from app.model.bookings_schema import BookingSchema
 from app.model.qr_schema import QRcodeSchema
-from app.lib.auth_handling import user_authentication
+from app.lib.user_form_handling import user_authentication
 from app.lib.code_handling import BookingStatus, EventStatus
 
 class EventBooking(Resource):    
