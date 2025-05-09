@@ -36,6 +36,7 @@ from app.extensions import mail
 from app.config import app_config
 
 ENV = os.getenv('FLASK_ENV', 'development')
+scheduler = BackgroundScheduler()
 
 def create_app():
     app = Flask(__name__)
@@ -49,8 +50,8 @@ def create_app():
     JWTManager(app)
     mail.init_app(app)
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=update_event_status, trigger='interval', minutes=60)
+    # scheduler = BackgroundScheduler()
+    scheduler.add_job(func=lambda: update_event_status(app), trigger='interval', minutes=1)
     scheduler.start()
 
     api.add_resource(Hello, '/')

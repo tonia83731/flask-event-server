@@ -37,7 +37,7 @@ class AdminRegister(Resource):
         user.created()
 
         # SEND ACTIVATION EMAIL
-        send_activate_email(user.id, user.email, user.name)
+        # send_activate_email(user.id, user.email, user.name)
 
         return {
             'success': True,

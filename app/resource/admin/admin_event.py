@@ -13,7 +13,7 @@ from app.lib.event_form_handling import EventValidationForm
 class AdminEvents(Resource):
     @jwt_required()
     def get(self, admin_id):
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -35,7 +35,7 @@ class AdminEvents(Resource):
 
     @jwt_required()
     def post(self, admin_id):
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -62,7 +62,7 @@ class AdminEvents(Resource):
 class AdminEvent(Resource):
     @jwt_required()
     def get(self, admin_id, event_id):
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -80,7 +80,7 @@ class AdminEvent(Resource):
     
     @jwt_required()
     def put(self, admin_id, event_id):
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -118,7 +118,7 @@ class AdminEvent(Resource):
     @jwt_required()
     def delete(self, admin_id, event_id):
         """ 刪除活動 (CAUTION) """
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -141,7 +141,7 @@ class AdminEventCanceled(Resource):
     @jwt_required()
     def put(self, admin_id, event_id):
         """ 取消活動 """
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
@@ -174,7 +174,7 @@ class AdminEventCanceled(Resource):
 class AdminEventBookings(Resource):
     @jwt_required()
     def get(self, admin_id, event_id):
-        if not JWTAuth.is_admin(admin_id):
+        if not JWTAuth().is_admin(admin_id):
             return {
                 "message": "Permission denied"
             }, 400
