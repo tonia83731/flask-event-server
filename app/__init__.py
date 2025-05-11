@@ -81,7 +81,6 @@ def create_app():
     api.add_resource(UserInfo, "/users/<int:user_id>")
     api.add_resource(AdminInfo, "/admin/users/<int:admin_id>")
 
-    
     api.add_resource(UserRegister, "/auth/register", endpoint="user_register")
     api.add_resource(UserLogin, "/auth/login", endpoint="user_login")
     api.add_resource(AdminRegister, "/admin/auth/register", endpoint="admin_register")

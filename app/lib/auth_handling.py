@@ -7,7 +7,7 @@ class JWTAuth:
         self.role = self.claims.get("role")
         self.is_active = self.claims.get("is_active", False)
         self.super_flag = self.claims.get("is_super", False)
-        print(self.super_flag)
+        # print(self.super_flag)
 
     def _base_check(self, user_id, required_role):
         return (self.identity == user_id and self.role == required_role and self.is_active is True)

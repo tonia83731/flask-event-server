@@ -2,13 +2,9 @@ import bcrypt
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import create_access_token
-from flask_mail import Message
 from marshmallow import ValidationError
 from app import db
-from app.extensions import mail
-from app.lib.validation.auth import LoginValidate
 from app.lib.password_handling import encoded_password
-from app.lib.token_handling import generate_activation_token, confirm_activation_token
 from app.model.users_schema import UserSchema
 from app.lib.user_form_handling import AdminValidationForm, LoginValidationForm
 from app.lib.email_handling import send_activate_email
@@ -37,7 +33,7 @@ class AdminRegister(Resource):
         user.created()
 
         # SEND ACTIVATION EMAIL
-        # send_activate_email(user.id, user.email, user.name)
+        send_activate_email(user.id, user.email, user.name)
 
         return {
             'success': True,
@@ -52,7 +48,7 @@ class AdminLogin(Resource):
         try:
             form = login_validation.load(form_input)
         except ValidationError as err:
-            print(err)
+            # print(err)
             return {
                 "message": err.messages
             }, 400

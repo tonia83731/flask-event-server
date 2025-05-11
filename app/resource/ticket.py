@@ -2,7 +2,6 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.model.bookings_schema import BookingSchema
-from app.model.qr_schema import QRcodeSchema
 from app.lib.code_handling import BookingStatus, EventStatus
 from app.lib.auth_handling import JWTAuth
 

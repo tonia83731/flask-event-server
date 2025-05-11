@@ -1,4 +1,4 @@
-from flask import request, Response
+from flask import Response
 from flask_restful import Resource
 from app.model.qr_schema import QRcodeSchema
 from app import db

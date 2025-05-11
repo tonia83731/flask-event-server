@@ -1,5 +1,4 @@
 from flask import request
-from datetime import date, datetime
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from marshmallow import ValidationError
@@ -7,7 +6,7 @@ from app import db
 from app.model.events_schema import EventSchema
 from app.model.bookings_schema import BookingSchema
 from app.lib.auth_handling import JWTAuth
-from app.lib.code_handling import EventStatus, EventLocation, BookingStatus
+from app.lib.code_handling import EventStatus, BookingStatus
 from app.lib.event_form_handling import EventValidationForm
     
 class AdminEvents(Resource):
@@ -46,7 +45,7 @@ class AdminEvents(Resource):
         try:
             form = event_validation.load(form_input)
         except ValidationError as err:
-            print(err)
+            # print(err)
             return {
                 "message": err.messages
             }, 400
@@ -100,7 +99,7 @@ class AdminEvent(Resource):
         try:
             form = event_validation.load(form_input)
         except ValidationError as err:
-            print(err)
+            # print(err)
             return {
                 "message": err.messages
             }, 400
